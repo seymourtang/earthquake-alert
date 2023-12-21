@@ -11,5 +11,5 @@ make container
 ```shell
 docker run -d --restart=always earthquake-alert:<image-version> --key=<your bark key> --duration=3s
 ```
-
-
+### Notification Screenshot
+![](asset/bark.jpg)
