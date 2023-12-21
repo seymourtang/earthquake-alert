@@ -79,11 +79,12 @@ func loop(ctx context.Context, notification chan<- Event) {
 				if resp != nil && len(resp.Data) > 0 {
 					slog.Info("found the events", "num", len(resp.Data), "events", resp.Data)
 					lastTs = resp.Data[0].StartAt
-					if time.Since(time.UnixMilli(lastTs)) < 30*time.Minute {
+					tt := time.UnixMilli(lastTs)
+					if time.Since(tt) <= 30*time.Minute {
 						notification <- resp.Data[0]
+					} else {
+						slog.Info("the latest event is out of date", "startAt", tt.String(), "event", resp.Data[0])
 					}
-				} else {
-					slog.Info("no event found")
 				}
 			}
 		case <-ctx.Done():
