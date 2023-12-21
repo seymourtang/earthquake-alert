@@ -1,3 +1,3 @@
-module earthquake_alert
+module earthquake-alert
 
 go 1.21
