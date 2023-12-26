@@ -103,7 +103,7 @@ func notification(ctx context.Context, ch <-chan Event) {
 		}
 		url := fmt.Sprintf("https://api.day.app/%s/%s/%s", *key,
 			fmt.Sprintf("%s 有%.1f级地震发生了", time.UnixMilli(event.StartAt).In(tz).Format(time.DateTime), event.Magnitude),
-			fmt.Sprintf("地点:%s,东经:%f°,北纬:%f°,地震深度:%.1f公里", event.Epicenter, event.Longitude, event.Latitude, event.Depth))
+			fmt.Sprintf("地点:%s,东经:%.1f°,北纬:%.1f°,地震深度:%.1f公里", event.Epicenter, event.Longitude, event.Latitude, event.Depth))
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 		if err != nil {
 			return err
