@@ -34,8 +34,8 @@ type Event struct {
 	Sations   int     `json:"sations"`
 }
 
-func query[T any](ctx context.Context, lastTs int64) (*T, error) {
-	url := fmt.Sprintf("https://mobile-new.chinaeew.cn/v1/earlywarnings?start_at=%d&updates=4", lastTs)
+func query[T any](ctx context.Context, lastTs int64, update int) (*T, error) {
+	url := fmt.Sprintf("https://mobile-new.chinaeew.cn/v1/earlywarnings?start_at=%d&updates=%d", lastTs, update)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -66,19 +66,27 @@ func loop(ctx context.Context, notification chan<- Event) {
 	}()
 
 	var (
-		lastTs int64 = 0
+		lastTs      int64 = 0
+		lastEventID       = 0
+		update            = 0
 	)
 
 	for {
 		select {
 		case <-ticker.C:
-			resp, err := query[Response](ctx, lastTs)
+			resp, err := query[Response](ctx, lastTs, update)
 			if err != nil {
 				slog.Error("query data", "err", err)
 			} else {
 				if resp != nil && len(resp.Data) > 0 {
 					slog.Info("found the events", "num", len(resp.Data), "events", resp.Data)
+					if resp.Data[0].EventId == lastEventID {
+						slog.Info("the latest event is the same as the last one,skip", "event", resp.Data[0])
+						continue
+					}
 					lastTs = resp.Data[0].StartAt
+					update = resp.Data[0].Updates
+					lastEventID = resp.Data[0].EventId
 					tt := time.UnixMilli(lastTs)
 					if time.Since(tt) <= 30*time.Minute {
 						notification <- resp.Data[0]
