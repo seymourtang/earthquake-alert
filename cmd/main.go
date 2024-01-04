@@ -79,11 +79,10 @@ func loop(ctx context.Context, notification chan<- Event) {
 				slog.Error("query data", "err", err)
 			} else {
 				if resp != nil && len(resp.Data) > 0 {
-					slog.Info("found the events", "num", len(resp.Data), "events", resp.Data)
 					if resp.Data[0].EventId == lastEventID {
-						slog.Info("the latest event is the same as the last one,skip", "event", resp.Data[0])
 						continue
 					}
+					slog.Info("found the events", "num", len(resp.Data), "events", resp.Data)
 					lastTs = resp.Data[0].StartAt
 					update = resp.Data[0].Updates
 					lastEventID = resp.Data[0].EventId
